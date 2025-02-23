@@ -19,7 +19,8 @@ namespace TodoApi.Controllers;
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodos()
         {
-            return await _context.TodoItems.ToListAsync();
+            var todos = _context.TodoItems.Where(t => t.IsDeleted == false).ToList();
+            return Ok(todos);
         }
         
         [HttpGet("{id}")]
@@ -49,12 +50,14 @@ namespace TodoApi.Controllers;
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTodo(int id)
+        public async Task<IActionResult> SoftDeleteTask(int id)
         {
             var todo = await _context.TodoItems.FindAsync(id);
             if (todo == null) return NotFound();
-            _context.TodoItems.Remove(todo);
+
+            todo.IsDeleted = true;
             await _context.SaveChangesAsync();
+            
             return NoContent();
         }
     }
