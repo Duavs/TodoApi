@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
 using TodoApi.Models;
+using TodoApi.DTOs;
 
 namespace TodoApi.Controllers
 {
@@ -64,5 +65,33 @@ namespace TodoApi.Controllers
 
             return NoContent();
         }
+        
+        //Sign up API
+        [HttpPost("signup")]
+        public async Task<ActionResult<User>> SignUp(UserRegisterDto.UsersRegisterDto userDto)
+        {
+            //Check if the email already exists
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userDto.Email);
+            if (existingUser != null)
+            {
+                return BadRequest("Email already exists.");
+            }
+            
+            //Create a new user object
+            var user = new User
+            {
+                Username = userDto.Username,
+                Email = userDto.Email,
+                PasswordHash = Models.User.HashPassword(userDto.Password),//Hash password 
+                Role = "User"
+            };
+            
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+        }
+        
     }
+        
 }
+
