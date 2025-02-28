@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices.ObjectiveC;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
@@ -91,6 +92,25 @@ namespace TodoApi.Controllers
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
         
+        //User login API
+        [HttpPost("login")]
+        public async Task<ActionResult<object>> Login([FromBody] LoginDto loginDto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
+            if (user == null || user.PasswordHash != Models.User.HashPassword(loginDto.Password))
+            {
+                return Unauthorized(new { message = "Username or password is incorrect." });
+            }
+            
+            return Ok(new
+            {
+                message = "Login successful.",
+                userId = user.Id,
+                username = user.Username,
+                email = user.Email,
+                role = "User"
+            });
+        }
     }
         
 }
