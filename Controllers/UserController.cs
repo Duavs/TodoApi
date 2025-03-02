@@ -109,6 +109,7 @@ namespace TodoApi.Controllers
                 username = user.Username,
                 email = user.Email,
                 role = "User"
+                
             });
         }
     }
