@@ -1,6 +1,9 @@
-using System.Runtime.InteropServices.ObjectiveC;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using TodoApi.Data;
 using TodoApi.Models;
 using TodoApi.DTOs;
@@ -12,10 +15,12 @@ namespace TodoApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly TodoDbContext _context;
+        private readonly IConfiguration _configuration; // ✅ Inject configuration
 
-        public UserController(TodoDbContext context)
+        public UserController(TodoDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         // Get all users
@@ -67,23 +72,23 @@ namespace TodoApi.Controllers
             return NoContent();
         }
         
-        //Sign up API
+        // Sign up API
         [HttpPost("signup")]
         public async Task<ActionResult<User>> SignUp(UserRegisterDto.UsersRegisterDto userDto)
         {
-            //Check if the email already exists
+            // Check if the email already exists
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userDto.Email);
             if (existingUser != null)
             {
                 return BadRequest("Email already exists.");
             }
             
-            //Create a new user object
+            // Create a new user object
             var user = new User
             {
                 Username = userDto.Username,
                 Email = userDto.Email,
-                PasswordHash = Models.User.HashPassword(userDto.Password),//Hash password 
+                PasswordHash = Models.User.HashPassword(userDto.Password), // Hash password
                 Role = "User"
             };
             
@@ -92,7 +97,7 @@ namespace TodoApi.Controllers
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
         
-        //User login API
+        // User login API
         [HttpPost("login")]
         public async Task<ActionResult<object>> Login([FromBody] LoginDto loginDto)
         {
@@ -101,18 +106,45 @@ namespace TodoApi.Controllers
             {
                 return Unauthorized(new { message = "Username or password is incorrect." });
             }
+
+            // ✅ Generate JWT Token
+            var token = GenerateJwtToken(user);
             
             return Ok(new
             {
                 message = "Login successful.",
+                token = token, // ✅ Return JWT token
                 userId = user.Id,
                 username = user.Username,
                 email = user.Email,
-                role = "User"
-                
+                role = user.Role
             });
         }
-    }
-        
-}
 
+        // 🔹 Generate JWT Token
+        private string GenerateJwtToken(User user)
+        {
+            var jwtSettings = _configuration.GetSection("Jwt");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Unique token ID
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(2),  // Token expires in 2 hours
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+    }
+}
