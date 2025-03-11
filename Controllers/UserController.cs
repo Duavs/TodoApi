@@ -74,7 +74,7 @@ namespace TodoApi.Controllers
         
         // Sign up API
         [HttpPost("signup")]
-        public async Task<ActionResult<User>> SignUp(UserRegisterDto.UsersRegisterDto userDto)
+        public async Task<ActionResult<User>> SignUp(UserRegisterDto userDto)
         {
             // Check if the email already exists
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userDto.Email);
@@ -89,12 +89,20 @@ namespace TodoApi.Controllers
                 Username = userDto.Username,
                 Email = userDto.Email,
                 PasswordHash = Models.User.HashPassword(userDto.Password), // Hash password
-                Role = "User"
+                Role = "User",
+                Status = true
             };
             
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, new UserResponseDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.Role,
+                Status = user.Status
+            });
         }
         
         // User login API
