@@ -12,5 +12,7 @@ namespace TodoApi.Config
 
         [Required]
         public string Audience { get; set; }
+        
+        public double ExpirationInMinutes { get; set; }  
     }
 }
