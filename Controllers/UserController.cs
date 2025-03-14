@@ -148,7 +148,7 @@ namespace TodoApi.Controllers
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(2),  // Token expires in 2 hours
+                expires: DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpirationInMinutes"])),
                 signingCredentials: credentials
             );
 
