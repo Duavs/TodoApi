@@ -11,8 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
 var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
-//var tokenExpiration = Encoding.En.Value);
-
+var tokenExpiration = TimeSpan.FromMinutes(jwtSettings.ExpirationInMinutes);
 // ✅ Configure JWT Authentication globally
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
