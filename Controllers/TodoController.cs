@@ -19,7 +19,12 @@ namespace TodoApi.Controllers;
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodos()
         {
-            var todos = _context.TodoItems.Where(t => t.IsDeleted == false).ToList();
+            // var todos = _context.TodoItems.Where(t => t.IsDeleted == false).ToList();
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null) return Unauthorized();
+
+            var todos = _context.TodoItems.Where(t => t.IsDeleted == false && t.UserId.ToString() == userId).ToList();
+            
             return Ok(todos);
         }
         
@@ -34,8 +39,13 @@ namespace TodoApi.Controllers;
         [HttpPost]
         public async Task<ActionResult<TodoItem>> AddTodo(TodoItem todo)
         {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if(userId == null) return Unauthorized();
+
+            todo.UserId = int.Parse(userId);
             _context.TodoItems.Add(todo);
             await _context.SaveChangesAsync();
+            
             return CreatedAtAction(nameof(GetTodoById), new { id = todo.Id }, todo);
         }
 
