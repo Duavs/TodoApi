@@ -14,4 +14,10 @@ public class UserRegisterDto
     public string Password { get; set; }
 
     public bool Status { get; set; } // Renamed from isActive
+    
+    [Required] public string FirstName { get; set; }
+
+    [Required] public string LastName { get; set; }
+
+    [Required] public string Address { get; set; }
 }
