@@ -86,6 +86,9 @@ namespace TodoApi.Controllers
             // Create a new user object
             var user = new User
             {
+                FirstName = userDto.FirstName,
+                LastName = userDto.LastName,
+                Address = userDto.Address,
                 Username = userDto.Username,
                 Email = userDto.Email,
                 PasswordHash = Models.User.HashPassword(userDto.Password), // Hash password
