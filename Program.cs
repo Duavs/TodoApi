@@ -26,11 +26,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtSettings.Audience
         };
     });
-
 // ✅ Configure Database Context
 builder.Services.AddDbContext<TodoDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 // ✅ Enable CORS
 builder.Services.AddCors(options =>
 {
