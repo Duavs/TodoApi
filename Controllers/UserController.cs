@@ -158,5 +158,23 @@ namespace TodoApi.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+        
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateDto userDto)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return NotFound();
+
+            // Update fields
+            user.Username = userDto.UserName;
+            user.Email = userDto.Email;
+            user.FirstName = userDto.FirstName;
+            user.LastName = userDto.LastName;
+            user.Address = userDto.Address;
+
+            await _context.SaveChangesAsync();
+            return NoContent(); // Or return Ok(user) if you want to return updated data
+        }
     }
 }
