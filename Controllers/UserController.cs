@@ -48,16 +48,34 @@ namespace TodoApi.Controllers
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
-
-        // Update a user
+        
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, User user)
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateDto userDto)
         {
-            if (id != user.Id) return BadRequest();
-            _context.Entry(user).State = EntityState.Modified;
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return NotFound();
+
+            // Update fields
+            user.Username = userDto.UserName;
+            user.Email = userDto.Email;
+            user.FirstName = userDto.FirstName;
+            user.LastName = userDto.LastName;
+            user.Address = userDto.Address;
+
             await _context.SaveChangesAsync();
-            return NoContent();
+            return NoContent(); // Or return Ok(user) if you want to return updated data
         }
+                    
+        // // Update a user
+        // [HttpPut("{id}")]
+        // public async Task<IActionResult> UpdateUser(int id, User user)
+        // {
+        //     if (id != user.Id) return BadRequest();
+        //     _context.Entry(user).State = EntityState.Modified;
+        //     await _context.SaveChangesAsync();
+        //     return NoContent();
+        // }
 
         // Delete a user (soft delete)
         [HttpDelete("{id}")]
@@ -159,22 +177,5 @@ namespace TodoApi.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
         
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateDto userDto)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return NotFound();
-
-            // Update fields
-            user.Username = userDto.UserName;
-            user.Email = userDto.Email;
-            user.FirstName = userDto.FirstName;
-            user.LastName = userDto.LastName;
-            user.Address = userDto.Address;
-
-            await _context.SaveChangesAsync();
-            return NoContent(); // Or return Ok(user) if you want to return updated data
-        }
     }
 }
