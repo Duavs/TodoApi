@@ -8,5 +8,5 @@ public class UserUpdateDto
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Address { get; set; }
-    // 🚫 Do NOT include PasswordHash here
+    
 }
