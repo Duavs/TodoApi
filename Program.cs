@@ -43,8 +43,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient(); // 🛠️ This registers IHttpClientFactory
-builder.Services.Configure<OpenAiSettings>(builder.Configuration.GetSection("OpenAI"));
-builder.Services.AddScoped<IOpenAiService, OpenAiService>();
 builder.Services.AddHttpClient<IAdviceService, AdviceService>();
 var app = builder.Build();
 
