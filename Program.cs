@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
 var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
-var tokenExpiration = TimeSpan.FromMinutes(jwtSettings.ExpirationInMinutes);
+var tokenExpiration = TimeSpan.FromMinutes(jwtSettings.ExpirationInMinutes);           
 // ✅ Configure JWT Authentication globally
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -43,8 +43,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient(); // 🛠️ This registers IHttpClientFactory
-builder.Services.Configure<OpenAiSettings>(builder.Configuration.GetSection("OpenAI"));
-builder.Services.AddScoped<IOpenAiService, OpenAiService>();
+// builder.Services.Configure<OpenAiSettings>(builder.Configuration.GetSection("OpenAI"));
+// builder.Services.AddScoped<IOpenAiService, OpenAiService>();
 builder.Services.AddHttpClient<IAdviceService, AdviceService>();
 var app = builder.Build();
 
