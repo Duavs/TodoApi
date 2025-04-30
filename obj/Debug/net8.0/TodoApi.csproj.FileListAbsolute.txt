@@ -170,3 +170,4 @@
 /Users/john/Projects/TodoApi/obj/Debug/net8.0/ref/TodoApi.dll
 /Users/john/Projects/TodoApi/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
 /Users/john/Projects/TodoApi/bin/Debug/net8.0/Microsoft.Bcl.Memory.dll
+/Users/john/Projects/TodoApi/bin/Debug/net8.0/Newtonsoft.Json.dll
