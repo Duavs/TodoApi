@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TodoApi.Data;
@@ -92,6 +93,7 @@ namespace TodoApi.Controllers
         
         // Sign up API
         [HttpPost("signup")]
+        [EnableRateLimiting("signupLimiter")]
         public async Task<ActionResult<User>> SignUp(UserRegisterDto userDto)
         {
             // Check if the email already exists
@@ -128,6 +130,7 @@ namespace TodoApi.Controllers
         
         // User login API
         [HttpPost("login")]
+        [EnableRateLimiting("loginLimiter")]
         public async Task<ActionResult<object>> Login([FromBody] LoginDto loginDto)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
