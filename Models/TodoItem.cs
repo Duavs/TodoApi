@@ -16,5 +16,5 @@ public class TodoItem
     public int UserId { get; set; }
     public int TaskTypeId { get; set; }
     public int TaskSeverityId { get; set; }
-    
+    public int TaskStatusId { get; set; }
 }
