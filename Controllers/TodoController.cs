@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
@@ -16,15 +17,13 @@ namespace TodoApi.Controllers;
             _context = context;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodos()
         {
-            // var todos = _context.TodoItems.Where(t => t.IsDeleted == false).ToList();
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (userId == null) return Unauthorized();
-
-            var todos = _context.TodoItems.Where(t => t.IsDeleted == false && t.UserId.ToString() == userId).ToList();
-            
+            var todos = await _context.TodoItems.Where(t => t.IsDeleted == false && t.UserId.ToString() == userId).ToListAsync();
             return Ok(todos);
         }
         
@@ -41,7 +40,7 @@ namespace TodoApi.Controllers;
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if(userId == null) return Unauthorized();
-
+           
             todo.UserId = int.Parse(userId);
             _context.TodoItems.Add(todo);
             await _context.SaveChangesAsync();
