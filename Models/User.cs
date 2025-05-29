@@ -10,19 +10,19 @@ public class User
 
     public int Id{get;set;}
     [Required]
-    public string Username { get; set; }
+    public required string Username { get; set; }
     
     [Required]
-    public string FirstName { get; set; }
+    public required string FirstName { get; set; }
     
     [Required]
-    public string LastName { get; set; }
+    public required string LastName { get; set; }
     
-    public string Address { get; set; }
+    public required string Address { get; set; }
     
     [Required]
     [EmailAddress]
-    public string Email { get; set; }
+    public required string Email { get; set; }
 
     [JsonIgnore]
     public string PasswordHash { get; set; }
