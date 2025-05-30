@@ -17,13 +17,11 @@ namespace TodoApi.Controllers;
             _context = context;
         }
 
-        [Authorize]
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodos()
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null) return Unauthorized();
-            var todos = await _context.TodoItems.Where(t => t.IsDeleted == false && t.UserId.ToString() == userId).ToListAsync();
+            var todos = await _context.TodoItems.Where(t => t.IsDeleted == false).ToListAsync();
             return Ok(todos);
         }
         
@@ -34,18 +32,24 @@ namespace TodoApi.Controllers;
             if (todo == null) return NotFound();
             return todo;
         }
-
         [HttpPost]
-        public async Task<ActionResult<TodoItem>> AddTodo(TodoItem todo)
+        public async Task<ActionResult<TodoItem>> AddTodo([FromBody] TodoItem todo)
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if(userId == null) return Unauthorized();
-           
-            todo.UserId = int.Parse(userId);
-            _context.TodoItems.Add(todo);
-            await _context.SaveChangesAsync();
-            
-            return CreatedAtAction(nameof(GetTodoById), new { id = todo.Id }, todo);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); // ✅ return 400 Bad Request if model is invalid
+            }
+
+            try
+            {
+                _context.TodoItems.Add(todo);
+                await _context.SaveChangesAsync();
+                return CreatedAtAction(nameof(GetTodoById), new { id = todo.Id }, todo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ Internal server error: {ex.Message}");
+            }
         }
 
         
